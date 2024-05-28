@@ -1,5 +1,5 @@
 {
-  "name": "@acme/nextjs",
+  "name": "@septplaces/nextjs",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,12 +14,12 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@acme/api": "workspace:*",
+    "@septplaces/api": "workspace:*",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.43.4",
-    "@acme/db": "workspace:*",
-    "@acme/ui": "workspace:*",
-    "@acme/validators": "workspace:*",
+    "@septplaces/db": "workspace:*",
+    "@septplaces/ui": "workspace:*",
+    "@septplaces/validators": "workspace:*",
     "@t3-oss/env-nextjs": "^0.10.1",
     "lucide-react": "^0.379.0",
     "@tanstack/react-query": "^5.35.5",
@@ -34,10 +34,10 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@acme/eslint-config": "workspace:*",
-    "@acme/prettier-config": "workspace:*",
-    "@acme/tailwind-config": "workspace:*",
-    "@acme/tsconfig": "workspace:*",
+    "@septplaces/eslint-config": "workspace:*",
+    "@septplaces/prettier-config": "workspace:*",
+    "@septplaces/tailwind-config": "workspace:*",
+    "@septplaces/tsconfig": "workspace:*",
     "@types/node": "^20.12.9",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.3.0",
@@ -48,5 +48,5 @@
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.5"
   },
-  "prettier": "@acme/prettier-config"
+  "prettier": "@septplaces/prettier-config"
 }

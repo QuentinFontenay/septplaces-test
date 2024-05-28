@@ -1,8 +1,8 @@
-import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { cookies } from "next/headers";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { appRouter, createTRPCContext } from "@acme/api";
 import type { NextRequest } from "next/server";
+import { cookies } from "next/headers";
+import { appRouter, createTRPCContext } from "@septplaces/api";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
 /**
  * Configure basic CORS headers

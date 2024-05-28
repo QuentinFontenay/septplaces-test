@@ -1,5 +1,5 @@
 {
-  "extends": ["@acme/tsconfig/base.json"],
+  "extends": ["@septplaces/tsconfig/base.json"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { cookies, headers } from "next/headers";
+import { createCaller, createTRPCContext } from "@septplaces/api";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { createCaller, createTRPCContext } from "@acme/api";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
