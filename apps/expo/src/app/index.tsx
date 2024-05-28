@@ -1,16 +1,36 @@
-import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import React from "react";
+import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, Stack } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 
-import type { RouterOutputs } from "~/utils/api";
-import { api } from "~/utils/api";
+import type { RouterOutputs } from "../utils/api";
+import { AuthAvatar } from "../components/header";
+import { api } from "../utils/api";
 
-function PostCard(props: {
-  post: RouterOutputs["post"]["all"][number];
-  onDelete: () => void;
-}) {
+function PostCard(props: { post: RouterOutputs["post"]["all"][number] }) {
+  const { post } = props;
+
+  const utils = api.useUtils();
+
+  const { mutate: deletePost } = api.post.delete.useMutation({
+    onSettled: () => utils.post.all.invalidate(),
+    onError: (error) => {
+      if (error.data?.code === "UNAUTHORIZED")
+        Alert.alert("Error", "Only the author can delete their post");
+    },
+  });
+
   return (
     <View className="flex flex-row rounded-lg bg-muted p-4">
       <View className="flex-grow">
@@ -21,16 +41,18 @@ function PostCard(props: {
             params: { id: props.post.id },
           }}
         >
-          <Pressable className="">
-            <Text className=" text-xl font-semibold text-primary">
-              {props.post.title}
-            </Text>
-            <Text className="mt-2 text-foreground">{props.post.content}</Text>
+          <Pressable>
+            <View>
+              <Text className="text-xl font-semibold text-emerald-400">
+                {post.title}
+              </Text>
+              <Text className="mt-2 text-foreground">{post.content}</Text>
+            </View>
           </Pressable>
         </Link>
       </View>
-      <Pressable onPress={props.onDelete}>
-        <Text className="font-bold uppercase text-primary">Delete</Text>
+      <Pressable onPress={() => deletePost(post.id)}>
+        <Text className="font-bold uppercase text-emerald-400">Delete</Text>
       </Pressable>
     </View>
   );
@@ -39,84 +61,95 @@ function PostCard(props: {
 function CreatePost() {
   const utils = api.useUtils();
 
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = React.useState("");
+  const [content, setContent] = React.useState("");
 
-  const { mutate, error } = api.post.create.useMutation({
-    async onSuccess() {
+  const { mutate: createPost, error } = api.post.create.useMutation({
+    onSuccess: async () => {
       setTitle("");
       setContent("");
+      Keyboard.dismiss();
       await utils.post.all.invalidate();
+    },
+    onError: (error) => {
+      if (error.data?.code === "UNAUTHORIZED")
+        Alert.alert("Error", "You must be logged in to create a post");
     },
   });
 
   return (
-    <View className="mt-4 flex gap-2">
-      <TextInput
-        className=" items-center rounded-md border border-input bg-background px-3 text-lg leading-[1.25] text-foreground"
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Title"
-      />
-      {error?.data?.zodError?.fieldErrors.title && (
-        <Text className="mb-2 text-destructive">
-          {error.data.zodError.fieldErrors.title}
-        </Text>
-      )}
-      <TextInput
-        className="items-center rounded-md border border-input bg-background px-3  text-lg leading-[1.25] text-foreground"
-        value={content}
-        onChangeText={setContent}
-        placeholder="Content"
-      />
-      {error?.data?.zodError?.fieldErrors.content && (
-        <Text className="mb-2 text-destructive">
-          {error.data.zodError.fieldErrors.content}
-        </Text>
-      )}
-      <Pressable
-        className="flex items-center rounded bg-primary p-2"
-        onPress={() => {
-          mutate({
-            title,
-            content,
-          });
-        }}
-      >
-        <Text className="text-foreground">Create</Text>
-      </Pressable>
-      {error?.data?.code === "UNAUTHORIZED" && (
-        <Text className="mt-2 text-destructive">
-          You need to be logged in to create a post
-        </Text>
-      )}
-    </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={150}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} className="flex-1">
+        <View className="mt-4 justify-around">
+          <TextInput
+            className="mb-2 rounded bg-background p-2 text-zinc-200"
+            placeholderTextColor="#A1A1A9" // zinc-400
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Title"
+          />
+          {error?.data?.zodError?.fieldErrors.title && (
+            <Text className="mb-2 text-red-500">
+              {error.data.zodError.fieldErrors.title}
+            </Text>
+          )}
+          <TextInput
+            className="mb-2 rounded bg-background p-2 text-zinc-200"
+            placeholderTextColor="#A1A1A9" // zinc-400
+            value={content}
+            onChangeText={setContent}
+            placeholder="Content"
+          />
+          {error?.data?.zodError?.fieldErrors.content && (
+            <Text className="mb-2 text-red-500">
+              {error.data.zodError.fieldErrors.content}
+            </Text>
+          )}
+          <Pressable
+            className="rounded bg-emerald-400 p-2"
+            onPress={() => {
+              createPost({
+                title,
+                content,
+              });
+            }}
+          >
+            <Text className="font-semibold text-zinc-900">Publish post</Text>
+          </Pressable>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
-export default function Index() {
+export default function HomeScreen() {
   const utils = api.useUtils();
 
   const postQuery = api.post.all.useQuery();
 
-  const deletePostMutation = api.post.delete.useMutation({
-    onSettled: () => utils.post.all.invalidate().then(),
-  });
-
   return (
-    <SafeAreaView className=" bg-background">
-      {/* Changes page title visible on the header */}
-      <Stack.Screen options={{ title: "Home Page" }} />
-      <View className="h-full w-full bg-background p-4">
-        <Text className="pb-2 text-center text-5xl font-bold text-foreground">
-          Create <Text className="text-primary">T3</Text> Turbo
-        </Text>
-
+    <SafeAreaView className="bg-background">
+      <Stack.Screen
+        options={{
+          headerLeft: () => <AuthAvatar />,
+          headerTitle: () => (
+            <Text className="text-3xl font-bold text-foreground">
+              <Text className="text-fuchsia-500">T3</Text>
+              <Text> x </Text>
+              <Text className="text-emerald-400">Supabase</Text>
+            </Text>
+          ),
+        }}
+      />
+      <View className="h-full w-full p-4">
         <Pressable
+          className="my-4 rounded bg-emerald-400 p-2"
           onPress={() => void utils.post.all.invalidate()}
-          className="flex items-center rounded-lg bg-primary p-2"
         >
-          <Text className="text-foreground"> Refresh posts</Text>
+          <Text className="font-semibold text-zinc-900">Refresh posts</Text>
         </Pressable>
 
         <View className="py-2">
@@ -129,12 +162,7 @@ export default function Index() {
           data={postQuery.data}
           estimatedItemSize={20}
           ItemSeparatorComponent={() => <View className="h-2" />}
-          renderItem={(p) => (
-            <PostCard
-              post={p.item}
-              onDelete={() => deletePostMutation.mutate(p.item.id)}
-            />
-          )}
+          renderItem={(p) => <PostCard post={p.item} />}
         />
 
         <CreatePost />

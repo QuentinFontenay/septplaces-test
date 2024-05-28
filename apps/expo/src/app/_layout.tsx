@@ -2,9 +2,12 @@ import "@bacons/text-decoder/install";
 
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import { useColorScheme } from "nativewind";
 
 import { TRPCProvider } from "~/utils/api";
+import { HeaderBackButton, HeaderTitle } from "../components/header";
+import { supabase } from "../utils/supabase";
 
 import "../styles.css";
 
@@ -13,22 +16,34 @@ import "../styles.css";
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
   return (
-    <TRPCProvider>
-      {/*
+    <SessionContextProvider supabaseClient={supabase}>
+      <TRPCProvider>
+        {/*
           The Stack component displays the current page.
           It also allows you to configure your screens 
         */}
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: "#f472b6",
-          },
-          contentStyle: {
-            backgroundColor: colorScheme == "dark" ? "#09090B" : "#FFFFFF",
-          },
-        }}
-      />
-      <StatusBar />
-    </TRPCProvider>
+        <Stack
+          screenOptions={{
+            headerLeft: HeaderBackButton,
+            headerTitle: HeaderTitle,
+            headerStyle: {
+              backgroundColor: "#18181A",
+            },
+            contentStyle: {
+              backgroundColor: colorScheme == "dark" ? "#09090B" : "#FFFFFF",
+            },
+          }}
+        >
+          <Stack.Screen
+            name="profile"
+            options={{
+              presentation: "modal",
+              headerTitle: () => <></>,
+            }}
+          />
+        </Stack>
+        <StatusBar />
+      </TRPCProvider>
+    </SessionContextProvider>
   );
 }

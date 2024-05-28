@@ -21,6 +21,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     bundleIdentifier: "your.bundle.identifier",
     supportsTablet: true,
+    usesAppleSignIn: true,
+    config: {
+      usesNonExemptEncryption: false,
+    },
   },
   android: {
     package: "your.bundle.identifier",
@@ -31,12 +35,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   // extra: {
   //   eas: {
-  //     projectId: "your-eas-project-id",
+  //     projectId: "30ce3662-f0df-49b0-87de-902c56758e27",
   //   },
   // },
   experiments: {
     tsconfigPaths: true,
     typedRoutes: true,
   },
-  plugins: ["expo-router"],
+  plugins: ["expo-router", "expo-secure-store", "expo-apple-authentication"],
 });
